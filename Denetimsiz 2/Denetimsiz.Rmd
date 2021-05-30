@@ -1,0 +1,415 @@
+
+
+---
+title: "denetimsiz"
+author: "Canberk BULUT"
+
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\newpage
+Gerekli Kütüphaneler
+```{r}
+library("corrplot")
+library("factoextra")
+library("cluster")
+library("readxl")
+```
+
+```{r}
+setwd("C:/Users/cberk/Desktop")
+prosperity<-read_excel("denetimsiz veri.xlsx")
+prosperity2<-prosperity[-1]
+
+```
+
+
+\newpage
+# 1. Tanımlayıcı istatistikleri yorumlayınız.
+
+```{r}
+summary(prosperity)
+apply(prosperity,2,var)
+var(prosperity$`Personal Freedom`)
+```
+
+
+\newpage
+```{r}
+par(mfrow=c(3,5))
+hist(prosperity$`Average Score`, main = "Average Score Değişkeni")
+hist(prosperity$`Safety & Security`, main = "Safety & Security Değişkeni")
+hist(prosperity$`Personal Freedom`, main = "Personal Freedom Değişkeni")
+hist(prosperity$Governance, main = "Governance Değişkeni")
+hist(prosperity$`Social Capital`, main = "Social Capital Değişkeni")
+hist(prosperity$`Investment Environment`, main = "Investment Environment Değişkeni")
+hist(prosperity$`Enterprise Conditions`, main = "Enterprise Conditions Değişkeni")
+hist(prosperity$`Market Access & Infrastructure`, main = "Market Access & Infrastructure Değişkeni")
+hist(prosperity$`Economic Quality`, main = "Economic Quality Değişkeni")
+hist(prosperity$`Living Conditions`, main = "Living Conditions Değişkeni")
+hist(prosperity$Health, main = "Health Değişkeni")
+hist(prosperity$Education, main = "Education Değişkeni")
+hist(prosperity$`Natural Environment`, main = "Natural Environment Değişkeni")
+
+```
+ * Average Score değişkeninin min değeri 27.89, max değeri 84.37 , ortalaması 57.51 , varyansı 312.3 'dür.
+ 
+ * Safety & Security değişkeninin min değeri 14.46, max değeri 95.83 , ortalaması 67.22 , varyansı 377.6 'dır.
+ 
+ * Personal Freedom değişkeninin min değeri 12.76, max değeri 93.86 , ortalaması 53.35 , varyansı 377.6 'dır. 
+ 
+ * Governance değişkeninin min değeri 12.63, max değeri 90.65 , ortalaması 49.79 , varyansı 347.1 'dir.
+ 
+ * Social Capital değişkeninin min değeri 23.99, max değeri 79.08 , ortalaması 52.75 , varyansı 85.4 'dür.
+ 
+ * Investment Environment değişkeninin min değeri 25.49, max değeri 87.00 , ortalaması 54.03 , varyansı 227.3 'dür.
+ 
+ * Enterprise Conditions değişkeninin min değeri 19.7, max değeri 86.86 , ortalaması 55.58 , varyansı 201.1 'dir.
+ 
+ * Market Access & Infrastructure  değişkeninin min değeri 20.06, max değeri 88.17 , ortalaması 54.10 , varyansı 309.6 'dır.
+ 
+ * Economic Quality değişkeninin min değeri 23.23, max değeri 80.67 , ortalaması 50.45 , varyansı 197.5 'dir.
+ 
+ * Living Conditions değişkeninin min değeri 19.08, max değeri 97.07 , ortalaması 69.61 , varyansı 404.6 'dır.
+ 
+ * Health değişkeninin min değeri 35.52, max değeri 86.39 , ortalaması 69.11 , varyansı 132.1 'dir.
+ 
+ * Education değişkeninin min değeri 12.44, max değeri 91.42 , ortalaması 58.84 , varyansı 392.9 'dur.
+ 
+ * Natural Environment değişkeninin min değeri 35.14, max değeri 77.61 , ortalaması 55.26 , varyansı 72.9 'dur.
+
+\newpage
+```{r}
+data<-prosperity[-1]
+boxplot(data)
+data=scale(data)
+boxplot(data)
+```
+
+ * Ortalamalar birbirine yakın olmus olsa da varyanslar arasındaki fark fazla olduğu için veriyi scale ettim.
+ 
+ 
+```{r}
+ row.names(data)<- prosperity$Country
+
+```
+ 
+  * Country kolonunu boxplot cizebilmek icin cıkartmam gerekiyordu, ben de veriseti icinde ülke isimlerini gormek icin bu kolon degerlerini satir ismi olarak atadim.
+ 
+\newpage
+```{r}
+corr=cor((data), method = "pearson")
+corrplot.mixed(corr, lower="pie",upper="number")
+
+```
+
+ * Bütün değişkenler arasında pozitify yönlü bir ilişki vardır
+ 
+ * En kuvvetli ilişki Average Score ile Access Infrastructure arasındadır.
+ 
+ * En zayıf ilişki Social Capital ile Natural Environment arasındadır.
+ 
+ 
+ 
+ \newpage
+# 2. Temel Bileşenler analizini uygulayınız. 
+```{r}
+data.cor=cor(data)
+data.eigen=eigen(data.cor)
+
+```
+ 
+
+```{r}
+eigenvalues=data.eigen$value
+prop.var=data.eigen$value/sum(data.eigen$values)
+cum.prop.var=cumsum(prop.var)
+rbind(eigenvalues,prop.var,cum.prop.var)
+
+```
+  
+  * İlk 2 bileşen 1 in üzerinde olduğu ve %83 ünü açıkladığı için seçilir.
+  
+  
+  
+```{r}
+data.pca <- prcomp(data, center = TRUE, scale. = F)
+summary(data.pca)
+
+```
+ * Scale edilmiş data isimli data frame i kullandığım için scale komutuna F yazdım.
+ 
+ 
+```{r}
+data.pca$scale
+
+```
+
+ * Değişkenlerin standart hataları yukarıdaki gibidir. 
+ 
+```{r}
+
+data.pca$rotation
+
+```
+  
+  * Özvektörler yukarıdaki gibidir.
+  
+  
+```{r}
+
+data.pca$x[1:15,]
+```
+  
+  * İlk 15 satır için gözlem değerlerinin bileşen cinsinden değerleri yukarıdaki gibidir
+  
+  \newpage
+```{r}
+
+fviz_eig(data.pca)
+```
+  
+  
+  * Grafiktende görülebileceği gibi 2.bileşenden sonra ciddi bir azalma görülmemektedir, bu sebeple ilk 2 bileşenin seçilmesi daha uygundur.
+  
+```{r}
+
+biplot(data.pca)
+```
+  
+  * Singapore ve Israel  uç tarafta bulunmaktadır.
+  
+  
+```{r}
+
+res.var=get_pca_var(data.pca)
+res.var$coord
+```
+
+
+  
+```{r}
+res.var$contrib
+
+
+```
+  
+  
+  * 1.Bileşenin neredeyse bütün değişkenleri açıkladığını, 2. değişkenin ise Personal Freedom, Natural Environment değişkenlerini daha iyi açıkladığını söyleyebiliriz.
+  
+  \newpage
+```{r}
+res.var$cos2
+```
+  * 1.bileşende bütün değişkenlerin katkısı görülmektedir, en çok katkıyı average score vermiştir.
+  
+  * 2.bileşende bütün değişkenlerin katkısı görülmektedir, en çok katkıyı natural environment ve personal freedom vermiştir.
+  
+  
+  \newpage
+# 3. Uzaklık Matrislerini yorumlayınız. 
+  
+```{r}
+
+dist_eucl=dist(data, method="euclidean")
+fviz_dist(dist_eucl, order=FALSE)
+```
+
+ * South Sudan ile Denmark arasında kuvvetli uzaklık ilişkisi bulunur.
+ 
+ * Norway ile Denmark arasında zayıf uzaklık ilişkisi bulunur.
+ 
+ \newpage
+# 4.Kümeleme analizinde uygun veri setini kullanarak hangi yöntemi seçtiğinizi ve kaç küme belirlediğinizi gerekçeleriniz ile açıklayınız. 
+ 
+ 
+ 
+ 
+##K-means
+```{r}
+data2=predict(data.pca)[,1:2]
+fviz_nbclust(data2,kmeans,method = "wss") 
+
+
+```
+ 
+  * WSS metoduna göre kırılma yaşanan ve minimuma yakın değer seçilmelidir, bu yüzden 3 küme seçilmesi daha uygundur.
+  
+  
+```{r}
+fviz_nbclust(data2,kmeans,method = "silhouette") 
+
+```
+  
+  * Silhoutte metoduna göre 3 küme seçilmesi daha uygundur.
+  
+  
+```{r}
+fviz_nbclust(data2,kmeans,method = "gap_stat") 
+
+```
+  
+  * Gap_stat metoduna göre 1 küme seçilmesi daha uygundur.
+  
+  
+  
+  
+  \newpage
+```{r}
+set.seed(021)
+km_res=kmeans(data2, 3, nstart=25) 
+print(km_res)
+fviz_cluster(km_res, data = data,
+             ellipse.type = "euclid", # Concentration ellipse
+             star.plot = TRUE, # Add segments from centroids to items
+             repel = FALSE, # Avoid label overplotting (slow)
+             ggtheme = theme_minimal())
+             
+```
+
+ * Grafiğe bakıldığında düzgün bir dağılım görülüyor, herhangi bir iç içe girme durumu söz konusu değil.
+
+ * Between_SS/total_SS değerine bakıldığında iyi bir oran verdiği görülmektedir.
+ 
+ * silhoutte ve wss in aynı sonucu vermesinden dolayı 3 küme seçilmesi uygundur, zaten gap_stat metodunun 1 küme vermesi çok da mantıklı görünmüyor bu kadar dağınık bir veri için.
+  
+ \newpage
+#K-medoids  
+```{r}
+fviz_nbclust(data2, pam, method= "wss") 
+```
+
+ * wss metoduna göre 3 küme olması uygundur.
+ 
+```{r}
+fviz_nbclust(data2, pam, method= "gap")
+```
+ 
+ * gap metoduna göre 1 küme seçilmesi daha uygundur.
+ 
+```{r}
+fviz_nbclust(data2, pam, method= "silhouette")
+```
+ 
+ * Silhoutte metoduna göre 2 küme seçilmesi daha uygundur.
+
+ \newpage
+```{r}
+set.seed(123)
+pam_data_3=pam(data2,3)
+print(pam_data_3)
+fviz_cluster(pam_data_3,
+             ellipse.type = "t", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             ggtheme = theme_classic())
+
+```
+ 
+ \newpage
+```{r}
+pam_data_2=pam(data2,2)
+print(pam_data_2)
+fviz_cluster(pam_data_2,
+             ellipse.type = "t", # Concentration ellipse
+             repel = TRUE, # Avoid label overplotting (slow)
+             ggtheme = theme_classic())
+
+```
+  * 2 küme de seçsek 3 küme de seçsek çok fazla iç içe nokta oluyor,  k medoids yöntemi k means yöntemine göre bu veri seti için daha başarısızdır denilebilir.
+  
+\newpage
+#Clara
+
+```{r}
+fviz_nbclust(data2, clara, method= "wss")
+```
+
+  * wss metoduna göre 3 küme seçilmesi daha uygundur
+  
+```{r}
+fviz_nbclust(data2, clara, method= "silhouette")
+```
+  
+  * silhoutte metoduna göre 3 küme seçilmesi daha uygundur.
+  
+```{r}
+fviz_nbclust(data, clara, method= "gap")
+```
+  
+  * gap metoduna göre 8 küme seçilmesi daha uygundur.
+  
+  * Sonuç olarak 2 yöntemin 3 kümeyi uygun bulması sebebiyle, 3 küme seçilmesine karar verilmiştir.
+  
+ \newpage 
+```{r}
+data_clara <- clara(data2, 3, samples = 50, pamLike = TRUE)
+print(data_clara)
+
+dd <- cbind(data, cluster = data_clara$cluster)
+head(dd)
+
+
+fviz_cluster(data_clara,
+             ellipse.type = "t", # Concentration ellipse
+             geom="point", pointsize=1,
+             ggtheme = theme_classic()
+)
+```
+
+ * 3 küme yine iç içe geçmiştir, bu sebeple k means clara yönteminden bu veri seti özelinde daha uygundur denilebilir.
+ 
+ \newpage
+#5. Finalde belirlediğiniz kümeler için ayrıntılı yorumlamalar yapınız.
+
+
+
+```{r}
+fviz_cluster(km_res, data = data,
+             ellipse.type = "euclid", # Concentration ellipse
+             star.plot = TRUE, # Add segments from centroids to items
+             repel = FALSE, # Avoid label overplotting (slow)
+             ggtheme = theme_minimal())
+```
+
+\newpage
+#K means PCA yapılmamis hali
+```{r}
+fviz_nbclust(data,kmeans,method = "wss")
+set.seed(021)
+km_res=kmeans(data, 3, nstart=25) 
+print(km_res)
+
+```
+ 
+ * wss metoduna göre 3 küme seçilmesine karar verilmiştir.
+ 
+ * (between_SS / total_SS) oranına bakıldığında pca li halinin daha yüksek bir oran verdigi için pca li k_means uygulanmasına karar verilmistir.
+
+\newpage
+```{r}
+summary(prosperity2)
+aggregate(prosperity2, by=list(cluster=km_res$cluster), mean)
+
+```
+
+  * 1. kümede Average Score,Safety & Security, Personal Freedom, Governance, Social Capital, Investment Environment, Enterprise Conditions, Market Access & Infrastructure, Economic Quality ortalama, Living Conditions, Health, Education, Natural Environment 
+  ortalamanın biraz üzerinde değerler almıştır.
+  
+  * 2. kümede Average Score, Safety & Security,Personal Freedom, Governance,Investment Environment,Enterprise Conditions, Market Access & Infrastructure, Economic Quality,Living Conditions, Health, Education ortalamanın altında değerler almış, Natural Environment ve Social Capital ortalama değerler almıştır.
+  
+  * 3.kümede Average Score,Safety & Security, Personal Freedom, Governance, Social Capital, Investment Environment, Enterprise Conditions, Market Access & Infrastructure, Economic Quality,Living Conditions, Health, Education, Natural Environment ortalamanın çok üzerinde değerler almıştır.
+  
+  * 1.kümede genel olarak hem çok yüksek hem de çok düşük değerler bir arada bulunduğu için çoğu değişken açısından ortalama değer çıkması normaldir.
+  
+  
+Within cluster sum of squares by cluster:
+[1] 313.8273 239.3875 143.3629
+  
+  * kümelerin kareler toplamına bakıldığında 1.kümenin 2 ve 3.kümeye göre daha çok değişim gösterdiği görülmektedir.
+  
+  
