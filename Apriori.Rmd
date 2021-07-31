@@ -1,0 +1,305 @@
+---
+title: "denetimsiz apriori"
+author: "Canberk BULUT - Simten ÖZCAN USLU"
+date: "19 06 2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Birliktelik Kuralları
+
+Birliktelik kuralları analizi problemi ilk olarak Agrawal, Imielinski ve Swami tarafından 1993 yılında ele alınmış olup ve veri madenciliğinde kullanılan ilk tekniklerden birisidir (Agrawal vd., 1993). Olayların birlikte gerçekleşme durumlarını çözümleyen veri madenciliği yöntemlerine Birliktelik Kuralları denir. Bu yöntemler, birlikte olma kurallarını belirli olasılıklarla ortaya koyar. Birliktelik kuralları, geçmiş verilerin analiz edilerek bu veriler içindeki birliktelik davranışlarının tespiti ile geleceğe yönelik çalışmalar yapılmasını destekleyen bir yaklaşımdır.
+
+
+Birliktelik kuralı uygulamasına pazar sepeti analizi örnek verilebilir (Frawley vd., 1991). Birliktelik kuralındaki amaç; alışveriş esnasında müşterilerin satın aldıkları ürünler arasındaki birliktelik ilişkisini bulmak, bu ilişki verisi doğrultusunda müşterilerin satın alma alışkanlıklarını tespit etmektir. Satıcılar, keşfedilen bu birliktelik bağıntıları ve alışkanlıklar sayesi ile etkili ve kazançlı pazarlama ve satış imkanına sahip olmaktadırlar.
+
+Birliktelik Kurallarının çıkış hikayesi: “Bebek Bezi ve Bira İlişkisi”
+
+Amerika da zincir marketlerden olan Wal-Mart, müşterilerin yapmış oldukları alışveriş hareketlerini incelediklerinde Cuma akşamları bebek bezi alan erkek müşterilerin beraberinde bira aldıkları ortaya çıkmasıydı.
+
+
+Birliktelik Kuralları Analizi için kullanılan bazı algoritmalar: 
+
+* Apriori
+
+* Carma
+
+* Sequence
+
+* GRI
+
+* Eclat
+
+* FP-Growth 
+
+Bunlar içerisinde popüler ve kullanılan Apriori Algoritması'dır.
+
+
+\newpage
+# Apriori Algoritması
+
+Apriori Algoritmasının ismi, bilgileri bir önceki adımdan aldığı için “prior” anlamında Apriori’dir (Agrawal ve Srikant, 1994). Bu algoritma temelinde iteratif (tekrarlayan) bir niteliğe sahiptir (Han ve Kamber, 2006) ve hareket bilgileri içeren veri tabanlarında sık geçen öğe kümelerinin keşfedilmesinde kullanılır.
+
+Apriori algoritmasına göre, eğer k-öğe kümesi (k adet elemana sahip öğe kümesi) minimum destek değerini sağlıyorsa, bu kümenin alt kümeleri de minimum destek ölçütünü sağlar.
+
+Birliktelik kuralı analizi, tüm sık geçen öğelerin bulunması ve sık geçen bu öğelerden güçlü birliktelik kurallarının üretilmesi olmak üzere iki aşamalıdır.
+
+
+
+Kullanılacak olan veri seti Tabular ya da Transactional yapıya sahip olmalı,
+Veri seti kategorik yapıda olmalıdır.
+Veri setindeki değişkenler yönleri (direction) in, out ya da both olarak tanımlanmalıdır.
+
+
+
+Tabular Veri Seti: Verilerin sütun bazlı olarak tutulduğu veri yapısıdır. 
+
+
+
+Transactional Veri Seti: Verilerin satır bazlı olarak genellikle veri tabanlarında tutulduğu veri yapısıdır.
+
+
+
+# Algoritma Parametreleri:
+
+Apriori algoritması minimum Destek (Support) ve minimum Güven (Confidence) parametrelerini alarak çalışmaktadır.
+
+Destek ve Güven parametreleri ne kadar büyükse birliktelik kurallarının da o kadar güçlü olduğunu ifade eder. Parametre başlangıç değerlerinin çok büyük olmasının bazı kuralların gözden kaçmasına, çok küçük olmasının ise bulunmak istenen örüntüden uzaklaşılmasına sebebiyet vereceğini unutmamak gerekir. Apriori algoritmasının varsayılan Destek değerinin %10 ve Güven değerinin ise %80 olduğunu ve eğer parametre değeri verilememiş ise bu değerler ile kurallar oluşacaktır.
+
+
+
+Destek (Support) Değeri: Bir ilişkinin tüm alışverişler içinde hangi oranda tekrarlandığını belirtir.
+
+
+Destek (X -> Y) = Frekans(X, Y) / N
+
+N: Toplam alışverişlerin sayısı
+
+
+Güven (Confidence) Değeri: X ürününü alan müşterilerin Y ürününü alma olasılığını ortaya koyar.
+
+Güven (X -> Y) = Frekans(X, Y) / Frekans(X)
+
+
+Örneğin X ve Y ürünleri için Destek değerinin %20’i ve Güven değerinin %70 olduğunu varsayarsak; Analiz edilen tüm alışverişlerin %20’sinde X ile Y ürünlerinin birlikte geçtiği, X ürününü satın alan müşterilerin %70’inin aynı alışverişte Y ürününü de satın aldığını gösterir.
+
+Lift Değeri (Lift Value):
+
+Bir önemli değerde Lift Değeri’dir. Kuralın ilginçliği/farklılığını ifade eder. Hesaplaması aşağıdaki gibidir.
+
+Lift Değeri: Support (X, Y) / ( Support(X) * Support(Y) ) 
+
+başka bir şekilde ifade edecek olursak;
+
+Lift Değeri: Frekans (X, Y) / ( Frekans(x) * Frekans(Y) )
+
+
+
+\newpage
+
+# Algoritma Nasıl Çalışır?
+
+* Birliktelik Kuralları Analizi yapılabilmesi için minimum Destek ve minimum Güven parametre değerleri belirlenir. Uygulamadan elde edilen sonuçlar bu parametre değerlerine eşit ya da büyük olacaktır.
+
+* Veri seti taranarak her bir ürün için tekil olarak frekans sayıları yani Destek değerleri belirlenir ve Minimum Destek parametre değerinden küçük değerlere sahip olan ürünler çözümlemeden çıkarılır.
+
+* Yukarıdaki işlemin ardından ürünler ikişerli olarak gruplanarak frekans değerleri elde edilir. Minimum Destek değerinden küçük olan ikili gruplar çözümlemeden çıkarılır.
+
+* Aynı şekilde üçlü, dörtlü vb. gruplandırmalar yaparak gruplara ait frekans bilgileri ile Minimum Destek değeri karşılaştırılır. Uygun olmayanlar çözümlemeden çıkarılır.
+
+* Yukarıdaki işlemler bittikten sonra Nitelik Kümesi (Itemsets) ortaya çıkarılır. Verilen d adet ürün için 2^d adet olası aday Nitelik Kümesi vardır. Devamında ise Güven değerleri hesaplanarak parametre olarak verilen Güven parametre değerinin üzerinde olan ürünler ile kurallar oluşturulur.
+
+
+
+
+\newpage
+
+# Algoritmanın Adımları
+Step 1: Create a frequency table of all the items that occur in all the transactions.
+
+Step 2: We know that only those elements for which the support is greater than the set threshold support is significant. i.e., (support of an individual item > threshold support)
+
+Step 3: The next step is to construct all the possible pairs of the selected significant items irrespective of the order. i.e., XY is same as YX.
+
+Step 4: The next step is to find the frequency of the occurrence of such similar and related pairs of items from all transactions, and only pairs of items that are greater than the specified threshold value of support is considered.
+
+Step 5: With step 5, it is possible to construct any number of related items with the association metrics and rules.
+
+
+
+\newpage
+
+Gerekli Kütüphaneler
+```{r}
+library(arules)
+library(arulesViz)
+library(RColorBrewer)
+```
+
+```{r}
+data("Groceries")
+class(Groceries)
+dim(Groceries)
+
+```
+
+
+* Groceries verisini kısaca tanıtacak olursak, 9538 transaction dan oluşan bir veridir. Bu gözlemler kişilerin marketten yaptıkları alışveriş fişlerindeki ürünler yazılıdır. Bu sebeple 1 gözlemde birden fazla ürün bulunabilir.
+
+```{r}
+inspect(Groceries[1:10])
+
+```
+
+
+* İlk 10 müşteri incelendiğinde birbirinden farklı ürünler satın aldığı görülmektedir ve her müşterinin satın aldığı ürün adedi birbirinden farklıdır.
+
+* Markette 169 adet farklı ürün bulunmaktadır. 
+
+* En çok satın alınan item; whole milk'dir.
+
+* 1 adet ürün satın alan müşteri sayısı 2159 iken; 32 adet ürün satın alan müşteri sayısı ise 1'dir.
+
+
+```{r}
+summary(Groceries)
+
+```
+
+
+
+
+* Her müşterinin ürünleri alma sıklığını gösteren grafik aşağıdaki gibidir. Müşterilerin yaklaşık % 25 'i "whole milk" satın almaktadır.
+
+```{r}
+
+arules::itemFrequencyPlot(Groceries, topN = 20, 
+                          col = brewer.pal(8, 'Pastel2'),
+                          main = 'Relative Item Frequency Plot',
+                          type = "relative",
+                          ylab = "Item Frequency (Relative)")
+
+```
+
+
+
+
+
+```{r}
+arules::itemFrequencyPlot(Groceries, topN = 20, 
+                          col = brewer.pal(8, 'Pastel2'),
+                          main = 'Absolute Item Frequency Plot',
+                          type = "absolute",
+                          ylab = "Item Frequency (Absolute)")
+
+```
+
+* Yukarıdaki grafikte ürünlerin satış miktarları gösterilmiştir. En çok satılan ürün whole milk olmuştur.
+
+
+
+```{r}
+rules <- apriori(Groceries, 
+                 parameter = list(supp = 0.01, conf = 0.2, minlen = 2))
+```
+
+* Groceries veri seti için Min. Support 0.01, Min. Confidence ise 0.2 belirlenmiştir. Eğer Min. Support ve Min. Confidence değerlerini  vermezisek; varsayılan başlangıç (%10 ve %80) değerlerini alarak model oluşturulacaktır.
+
+* Verilen Min. Support ve Min. Confidence değerlerine göre 231 adet rules oluşturulmuştur.
+
+```{r}
+summary(rules)
+
+
+```
+
+
+* Support Yorumu: Bir fiş hareketi içerisinde Hard Cheese ürünü ile Whole Milk 0,01 yani %1 değeri ile birlikte oldukça az görülmektedir.
+
+* Confidence Yorumu: Aynı zamanda Hard Cheese ürününü satın alan bir kişi 0,41 yani %41 ile Whole Milk ürünün de satın alacağı görülmektedir. Kuralın RHS(Right Hand Side) yani Consequent tarafı ile ilgilenir.
+
+* Lift Yorumu: Hard Cheese ürünü olan alışveriş sepetlerinde Whole Milk ürünlerini satışı 1,60 kat artırıyor. Bu değer kuralın LHS(Left Hand Side) yani Antecedent tarafı ile ilgilenir.
+
+* Count Yorumu: Her iki items’ın birlikte görülme sıklığı 99 olduğu görülmüştür.
+
+
+```{r}
+inspect(rules[1:5])
+
+```
+
+* Markette 25 farklı ikilinin support ve lift değerleri görselleştirilmiştir.
+
+* Hard cheese ve whole milk kombinasyonu bütün transactionların %10 unu oluşturmaktadır. Hard cheese alanların %41'i whole milk almıştır.
+
+* Butter milk ve other vegetables kombinasyonu bütün transactionların %10,3 ünü oluşturmaktadır. Butter milk alanların %37'si other vegetables almıştır.
+
+* Butter milk ve whole milk kombinasyonu bütün transactionların %11,5 ini oluşturmaktadır. Butter milk alanların %41,4'ü whole milk almıştır.
+
+
+```{r}
+vegetables.rules <- apriori(Groceries, parameter = list(supp=0.001, conf=0.8),appearance = list(default="lhs",rhs="other vegetables"))
+
+```
+
+```{r}
+inspect(head(vegetables.rules[1:3]))
+```
+
+* Bu şekilde filtreleyerek,2. ürün olarak other vegetables alma olasılıklarını, sayılarını elde edebiliriz.
+
+* turkey,curd, other vegetables kombinasyonu, bütün transactionların %1,2 sini oluşturur. Turkey ve curd alanların %80 i other vegetables ı almştır. 
+
+* Yogurt, rice, other vegetables kombinasyonu, bütün transactionların %1,9 unu oluşturur. Yogurt ve rica alanların %82,6 sı other vegetables ı almıştır.
+
+* herbs,fruit/vegetable juice, other vegetables kombinasyonu, bütün transactionların %1,2 sini oluşturur. Herbs ve fruit/vegetable juice alanların %80 i other vegetables ı almıştır.
+
+
+```{r}
+
+plot(rules[1:25], method="graph", control=list(alpha="1"), main="Graph Method for Groceries")
+
+```
+
+
+* Tüm kuralların ürünler ile gösterimi aşağıdaki gibidir.
+
+
+```{r}
+
+plot(rules, method ="paracoord", control = list(reorder = TRUE))
+
+```
+
+
+```{r}
+
+plot(rules,method="graph",interactive=TRUE,shading=NA)
+
+```
+
+
+```{r}
+
+subRules<-head(rules[1:10], n=100, by="confidence")
+plot(subRules, method = "grouped")
+
+
+```
+
+* Oluşturulan kurallar support değerlerine göre azalan sırayla listelenmiştir. İlk 10 değer görselleştirilmiştir. En çok birlikte satın alınan ürünler her zaman ikinci ürünün satın alınmasını arttırmamaktadır. Örneğin "whole milk" ile "rolls/buns" birlikte çok satın alınmış olmasına rağmen 
+"whole milk" satın alan kişiler "rolls/buns" satışlarını çok az arttırmıştır.
+
+```{r}
+
+rules_support <- sort(rules, by="support", decreasing=TRUE)
+subRules2<-head(rules_support[1:10], n=100, by="confidence")
+plot(subRules2, method = "grouped")
+
+```
+
+
+
